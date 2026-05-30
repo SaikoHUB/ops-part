@@ -1,3 +1,4 @@
+---
 - name: Deploy Prometheus + Grafana on K3s
   hosts: localhost
   connection: local
@@ -5,22 +6,22 @@
     - name: Apply RBAC
       kubernetes.core.k8s:
         state: present
-        src: /tmp/prometheus-rbac.yml
+        src: "{{ playbook_dir }}/../prometheus-rbac.yml"
 
     - name: Apply Prometheus config
       kubernetes.core.k8s:
         state: present
-        src: /tmp/prometheus-config.yml
+        src: "{{ playbook_dir }}/../prometheus-config.yml"
 
     - name: Apply Prometheus deployment
       kubernetes.core.k8s:
         state: present
-        src: /tmp/prometheus-deployment.yml
+        src: "{{ playbook_dir }}/../prometheus-deployment.yml"
 
     - name: Apply Grafana deployment
       kubernetes.core.k8s:
         state: present
-        src: /tmp/grafana-deployment.yml
+        src: "{{ playbook_dir }}/../grafana-deployment.yml"
 
     - name: Wait for Prometheus to be ready
       kubernetes.core.k8s_info:
