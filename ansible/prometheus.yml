@@ -1,0 +1,43 @@
+- name: Deploy Prometheus + Grafana on K3s
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Apply RBAC
+      kubernetes.core.k8s:
+        state: present
+        src: /tmp/prometheus-rbac.yml
+
+    - name: Apply Prometheus config
+      kubernetes.core.k8s:
+        state: present
+        src: /tmp/prometheus-config.yml
+
+    - name: Apply Prometheus deployment
+      kubernetes.core.k8s:
+        state: present
+        src: /tmp/prometheus-deployment.yml
+
+    - name: Apply Grafana deployment
+      kubernetes.core.k8s:
+        state: present
+        src: /tmp/grafana-deployment.yml
+
+    - name: Wait for Prometheus to be ready
+      kubernetes.core.k8s_info:
+        kind: Deployment
+        name: prometheus
+        namespace: default
+      register: result
+      until: result.resources[0].status.readyReplicas == 1
+      retries: 10
+      delay: 10
+
+    - name: Wait for Grafana to be ready
+      kubernetes.core.k8s_info:
+        kind: Deployment
+        name: grafana
+        namespace: default
+      register: result
+      until: result.resources[0].status.readyReplicas == 1
+      retries: 10
+      delay: 10
